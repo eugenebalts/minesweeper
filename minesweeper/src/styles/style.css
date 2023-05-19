@@ -1,3 +1,23 @@
 .field {
     display: grid;
+    gap: 1px;
+}
+
+.field__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-color: cadetblue;
+    border: 1px solid rgba(1, 1, 1, 0.1);
+    border-radius: 10%;
+    cursor: pointer;
+}
+
+.field__cell:hover {
+    opacity: .8;
+}
+
+.field__cell img {
+    width: 80%;
 }

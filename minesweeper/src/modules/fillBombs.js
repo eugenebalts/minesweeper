@@ -1,14 +1,14 @@
-export default async function fillBombs(BOMBS) {
+export default async function (BOMBS) {
     const cells = document.querySelectorAll('.field__cell');
     const field = document.querySelector('.field')
 
     let isClicked = false;
-    const bombsArray = [];
     let firstClick = 0;
+    const bombsArray = [];
 
     function randomize () {
         let randomNum = Math.floor(Math.random() * cells.length);
-        for (let i = bombsArray.length; i < BOMBS; i++) {
+        for (let i =  bombsArray.length; i < BOMBS; i++) {
             if (randomNum * 1 ===  firstClick * 1) {
                 randomize();
             } else if (!bombsArray.includes(randomNum)) {  
@@ -28,4 +28,5 @@ export default async function fillBombs(BOMBS) {
     }
 
     field.addEventListener('click', listener);
-}
+    }
+
