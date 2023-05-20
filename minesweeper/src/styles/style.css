@@ -1,6 +1,33 @@
-.field {
+.container {
+    padding: 40px;
+    margin: 0 auto;
+    width: fit-content;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(127, 127, 127, .2);
+    gap: 20px;
+}
+
+.container__field {
+    width: fit-content;
     display: grid;
     gap: 1px;
+}
+
+.container__button {
+    padding: 10px;
+    background-color: rgba(0, 0, 0, .3);
+    font-size: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .1s linear;
+}
+
+.container__button:hover {
+    background-color: rgba(0, 0, 0, .6);
+    color: white;
 }
 
 .field__cell {

@@ -9,6 +9,9 @@ async function minesweeper(COLS, ROWS, BOMBS) {
 
     let cells;
     let field;
+    let container;
+    let startGameBtn;
+    let selection;
 
     const bombsArray = [];
     const matrix = [];
@@ -26,14 +29,44 @@ async function minesweeper(COLS, ROWS, BOMBS) {
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
-        field = document.querySelector('.field');
+        field = document.querySelector('.container__field');
+        container = document.querySelector('.interface');
+        selection = document.querySelector('.container__selection')
+        startGameBtn = document.querySelector('.container__button');
     }
 
     async function createField(cols, rows) {
+        const container = document.createElement('div');
+        container.classList.add('container');
+
+        const selection = document.createElement('select');
+        selection.classList.add('container__selection');
+
+        const option1 = document.createElement('option');
+        option1.text = 'Легко - Поле 10х10 с 10 минами';
+        option1.value = 'Option 1'
+        const option2 = document.createElement('option');
+        option2.text = 'Средний - Поле 15х15 с 40 минами';
+        option2.value = 'Option 2'
+        const option3 = document.createElement('option');
+        option3.text = 'Сложный - Поле 20х20 с 70 минами';
+        option3.value = 'Option 3' 
+
+        selection.append(option1, option2, option3)
+
+        const label = document.createElement('label');
+        label.innerHTML = 'Выберите уровень сложности: '
+        label.append(selection)
+        label.style.textAlign = 'center'
+
+
+        const startGameBtn = document.createElement('div');
+        startGameBtn.classList.add('container__button');
+        startGameBtn.innerHTML = 'Start Game';
 
         const cellSize = '40px';
         const field = document.createElement('div');
-        field.classList.add('field');
+        field.classList.add('container__field');
         field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
         
         for (let i = 0; i < (cols * rows); i++) {
@@ -46,8 +79,12 @@ async function minesweeper(COLS, ROWS, BOMBS) {
             cell.setAttribute('opened', false)
     
             field.append(cell)
+            container.append(field);
+            container.append(label)
+            container.append(startGameBtn)
         }
-        document.querySelector('body').append(field);
+        document.querySelector('body').append(container);
+
     }
 
     async function fillBombs (bombs) {   
@@ -260,4 +297,4 @@ async function minesweeper(COLS, ROWS, BOMBS) {
     
 }
 
-minesweeper(5, 5, 5);
+minesweeper(10, 10, 10);
