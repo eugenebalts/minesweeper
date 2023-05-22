@@ -1,5 +1,6 @@
 import './styles/style.css'
 import bombIcon from './assets/bomb.png'
+import markerImg from './assets/marker.png'
 // import createField from "./modules/filed";
 // import fillBombs from './modules/fillBombs';
 
@@ -26,6 +27,7 @@ async function initGame() {
     let pregame;
     let clicksCounter;
     let duration;
+    let markerIco;
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
@@ -76,7 +78,7 @@ async function initGame() {
         option2.value = 'Option 2'
         const option3 = document.createElement('option');
         option3.text = 'Hard - Field 25x25 with 99 mines';
-        option3.value = 'Option 3' 
+        option3.value = 'Option 3'
     
         selection.append(option1, option2, option3)
     
@@ -104,7 +106,7 @@ async function initGame() {
             cell.setAttribute('number', i)
             cell.setAttribute('opened', false)
     
-            field.append(cell)
+            field.append(cell);
         }
     
         const pregame = document.createElement('div')
@@ -112,11 +114,6 @@ async function initGame() {
         const paragraph = document.createElement('p')
         paragraph.innerHTML = 'Please, choose options and start a the game'
         pregame.append(paragraph)
-    
-        field.append(pregame)
-        container.append(field);
-        container.append(label)
-        container.append(startGameBtn)
 
         const helpPanel = document.createElement('div');
         helpPanel.classList.add('container__help-panel');
@@ -138,19 +135,39 @@ async function initGame() {
         durationLabel.innerHTML = 'Game duration, sec: '
         durationLabel.append(duration)
 
-        const mark = document.createElement('div');
+        const marker = document.createElement('div');
+        marker.classList.add('panel__marker');
+        const markerTitle = document.createElement('p');
+        markerTitle.innerHTML = 'Mark cells';
+        const markerIco = document.createElement('img');
+        markerIco.src = markerImg;
+        marker.append(markerTitle);
+        marker.append(markerIco)
 
         
         helpPanel.append(clicksLabel);
         helpPanel.append(durationLabel);
+        helpPanel.append(marker);
         container.append(helpPanel)
+    
+        field.append(pregame)
+        container.append(field);
+        container.append(label)
+        container.append(startGameBtn)
+
+        
         document.querySelector('body').append(container);
     }
 
     async function minesweeper(cols, rows, bombs) {
-        createMatrix(cols, rows, bombs)
+        await createMatrix(cols, rows, bombs)
         await fillBombs(cols, rows, bombs);
         
+    }
+
+    async function nextStart(cols, rows, bombs) {
+        await createMatrix(cols, rows, bombs)
+        await fillBombs(cols, rows, bombs);
     }
 
     async function fillBombs (cols, rows, bombs) {
@@ -341,12 +358,12 @@ async function initGame() {
     
     let gameDuration = function() {
         setTimeout(() => {
-            dur ++
+            dur += 1
             duration.value = dur
             if (gameDuration) gameDuration()
         }, 1000)
     }
-    
+
     await checkContainer()
     await createField(...difficulty['easy']);
     await variables()
