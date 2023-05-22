@@ -4,6 +4,14 @@ import bombIcon from './assets/bomb.png'
 // import fillBombs from './modules/fillBombs';
 
 async function initGame() {
+
+    async function checkContainer() {
+        if (document.querySelector('.container') == null) {
+        } else {
+            document.querySelector('.container').remove()
+        }
+    }
+
     const difficulty = {
         'easy': [10, 10, 10],
         'medium': [15, 15, 40],
@@ -254,7 +262,7 @@ async function initGame() {
             }
 
             let selectionValue = selection.options[selection.selectedIndex].value;
-            
+
             if (selectionValue == 'Option 1') minesweeper(...difficulty['easy'])
             if (selectionValue == 'Option 2') minesweeper(...difficulty['medium'])
             if (selectionValue == 'Option 3') minesweeper(...difficulty['hard'])
@@ -262,7 +270,7 @@ async function initGame() {
     }
     
     
-    
+    await checkContainer()
     await createField(...difficulty['easy']);
     await variables()
     await startGame()
