@@ -13,7 +13,7 @@ async function initGame() {
     }
 
     const difficulty = {
-        'easy': [10, 10, 10],
+        'easy': [10, 10 , 10],
         'medium': [15, 15, 40],
         'hard': [25, 25, 99]
     }
@@ -29,6 +29,7 @@ async function initGame() {
     const matrix = [];
     let obj = {};
     let index = 0;
+    let clicks = 0;
 
     let leftSide = [];
     let rightSide = [];
@@ -134,16 +135,18 @@ async function initGame() {
                 }
             }
         }
-        let clicks = 0;
 
         async function listener (event) {
             if (event.target.classList.contains('field__cell')) {
                 index = parseInt(event.target.getAttribute('number'));
-                event.target.setAttribute('opened', true)
                 await randomize()
-                clicks++
+                if (event.target.getAttribute('opened') == 'false') {
+                    clicks++
+                    event.target.setAttribute('opened', true)
+                    console.log(clicks)
+                }
                 if (clicks == 1) await fillCells(cols, rows, bombs)
-                openCells(index, event)
+                openCells(cols, rows, bombs, index)
             }
         }
         field.addEventListener('click', listener);
@@ -180,19 +183,19 @@ async function initGame() {
                 if (bombsArray[i] < cols) { 
                     if (bombsArray[i] !== cols - 1)  obj[diagDownRight] += 1;
                     if (bombsArray[i] !== 0)  obj[diagDownLeft] += 1;
-                }
+                } else
 
                 if (bombsArray[i] >= (cols * rows) - cols) {
                     if (bombsArray[i] !== (cols * rows) - cols) obj[diagTopLeft] += 1;
                     if (bombsArray[i] !== (cols * rows) - 1) obj[diagTopRight] += 1;
-                }
+                } else 
                 
                 // DIAGONALS - bombsLineLeft
                 if (bombsArray[i] % cols == 0 ) {
                     if (bombsArray[i]  !== 0) obj[diagTopRight] += 1;
                     if (bombsArray[i] !== ((cols * rows) - cols)) obj[diagDownRight] += 1;
                     
-                }
+                } else 
                 
                 //DIAGONALS - bombsLineRight
                 if ((bombsArray[i] + 1) % cols == 0) {
@@ -203,29 +206,25 @@ async function initGame() {
         }
     }
 
-    function openCells(index) {
+    async function openCells(cols, rows, bombs, index) {
         if (obj[index] == 0) {
             cells[index].innerHTML = ' ';
         } else cells[index].innerHTML = obj[index];
         cells[index].style.backgroundColor = 'rgba(100, 100, 100, 0.3)'
 
-
-        async function emptyCell(index) {
-            cells[index].setAttribute('empty', true);
-            cells[index].innerHTML = ' ';
-            cells[index].style.backgroundColor = 'rgba(100, 100, 100, 0.3)';
+        if (bombsArray.includes(index)) {
+            cells[index].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
+            cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
+            gameOver()
+        } else {
+            let winNumber = (cols * rows) - bombs
+            if (clicks == winNumber) congratulations()
         }
 
-
-            if (bombsArray.includes(index)) {
-                cells[index].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
-                cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
-                gameOver()
-        }
-        checkInner(index)
+        checkInner(cols, rows, bombs, index)
     }
 
-    function checkInner(index) {
+    async function checkInner(cols, rows, bombs, index) {
         if (cells[index].innerHTML == 1) cells[index].style.color = 'blue';
         if (cells[index].innerHTML == 2) cells[index].style.color = 'green';
         if (cells[index].innerHTML == 3) cells[index].style.color = 'purple';
@@ -242,6 +241,7 @@ async function initGame() {
         const paragraph = document.createElement('p')
         paragraph.classList.add('blocker__content');
         paragraph.innerHTML = 'YOU LOSE! GAME OVER!'
+        paragraph.style.color = '#ff2400'
         background.append(paragraph)
 
         const button = document.createElement('div');
@@ -252,6 +252,36 @@ async function initGame() {
 
         button.addEventListener('click', () => {
             initGame()
+        })
+
+    }
+
+    async function congratulations() {
+        const background = document.createElement('div');
+        background.classList.add('container__blocker');
+        const paragraph = document.createElement('p')
+        paragraph.classList.add('blocker__content');
+        paragraph.innerHTML = 'YOU WIN! CONGRATULATIONS!'
+        paragraph.style.color = '#99ff99'
+        background.append(paragraph)
+
+        const button = document.createElement('div');
+        button.classList.add('blocker__button');
+        button.innerHTML = 'Play again'
+        background.append(button)
+        container.append(background);
+        openBombs()
+
+        button.addEventListener('click', () => {
+            initGame()
+        })
+
+    }
+
+    async function openBombs() {
+        bombsArray.forEach(number => {
+            cells[number].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
+            cells[number].style.backgroundColor = '#99ff99'
         })
     }
 
