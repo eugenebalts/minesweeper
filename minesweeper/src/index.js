@@ -3,78 +3,79 @@ import bombIcon from './assets/bomb.png'
 // import createField from "./modules/filed";
 // import fillBombs from './modules/fillBombs';
 
-
-
-async function minesweeper(COLS, ROWS, BOMBS) {
-
-    async function deleteBody() {
-        try {
-            document.querySelector('body').removeChild('.container')
-        } catch (e) {
-            return
-        }
+async function initGame() {
+    const difficulty = {
+        'easy': [10, 10, 10],
+        'medium': [15, 15, 40],
+        'hard': [25, 25, 99]
     }
-
-    const body = document.querySelector('body')
+    
     let cells;
     let field;
     let container;
     let startGameBtn;
     let selection;
+    let pregame;
 
     const bombsArray = [];
     const matrix = [];
     let obj = {};
+    let index = 0;
 
-    function createMatrix(array) {
-        for(let i = 0; i < ROWS; i++){
+    let leftSide = [];
+    let rightSide = [];
+    let topSide = [];
+    let downSide = [];
+    let diagonals = [];
+    
+    async function createMatrix(cols, rows) {
+        for(let i = 0; i < rows; i++){
             matrix[i] = [];
-            for(let j = 0; j < COLS; j++){
-                matrix[i][j] = ((i * ROWS) + j);
-                obj[((i * ROWS) + j)] = 0;
+            for(let j = 0; j < cols; j++){
+                matrix[i][j] = ((i * rows) + j);
+                obj[((i * rows) + j)] = 0;
             }
         }
     }
-    createMatrix(matrix)
-    console.log(matrix)
-
+    
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
         field = document.querySelector('.container__field');
         container = document.querySelector('.container');
         selection = document.querySelector('.container__selection')
         startGameBtn = document.querySelector('.container__button');
+        pregame = document.querySelector('.field__pregame')
     }
-
+    
     async function createField(cols, rows) {
         const container = document.createElement('div');
         container.classList.add('container');
-
+    
         const selection = document.createElement('select');
         selection.classList.add('container__selection');
-
+    
         const option1 = document.createElement('option');
-        option1.text = 'Легко - Поле 10х10 с 10 минами';
+        option1.text = 'Easy - field 10x10 with 10 mines';
         option1.value = 'Option 1'
         const option2 = document.createElement('option');
-        option2.text = 'Средний - Поле 15х15 с 40 минами';
+        option2.text = 'Medium - field 15x15 with 40 mines';
         option2.value = 'Option 2'
         const option3 = document.createElement('option');
-        option3.text = 'Сложный - Поле 20х20 с 70 минами';
+        option3.text = 'Hard - Field 25x25 with 99 mines';
         option3.value = 'Option 3' 
-
+    
         selection.append(option1, option2, option3)
-
+    
         const label = document.createElement('label');
-        label.innerHTML = 'Выберите уровень сложности: '
+        label.innerHTML = 'Choose difficulty level: '
         label.append(selection)
         label.style.textAlign = 'center'
-
-
+    
+    
         const startGameBtn = document.createElement('div');
         startGameBtn.classList.add('container__button');
         startGameBtn.innerHTML = 'Start Game';
-
+    
         const cellSize = '40px';
         const field = document.createElement('div');
         field.classList.add('container__field');
@@ -90,20 +91,32 @@ async function minesweeper(COLS, ROWS, BOMBS) {
             cell.setAttribute('opened', false)
     
             field.append(cell)
-            container.append(field);
-            container.append(label)
-            container.append(startGameBtn)
         }
+    
+        const pregame = document.createElement('div')
+        pregame.classList.add('field__pregame');
+        const paragraph = document.createElement('p')
+        paragraph.innerHTML = 'Please, choose options and start a the game'
+        pregame.append(paragraph)
+    
+        field.append(pregame)
+        container.append(field);
+        container.append(label)
+        container.append(startGameBtn)
+    
         document.querySelector('body').append(container);
-
     }
 
-    async function fillBombs (bombs) {   
-        let index = 0;
-    
+    async function minesweeper(cols, rows, bombs) {
+        createMatrix(cols, rows, bombs)
+        await fillBombs(cols, rows, bombs);
+        
+    }
+
+    async function fillBombs (cols, rows, bombs) {
         async function randomize () {
             let randomNum = Math.floor(Math.random() * cells.length);
-            for (let i =  bombsArray.length; i < BOMBS; i++) {
+            for (let i =  bombsArray.length; i < bombs; i++) {
                 if (randomNum * 1 ===  index * 1) {
                     randomize();
                 } else if (!bombsArray.includes(randomNum)) {  
@@ -112,11 +125,7 @@ async function minesweeper(COLS, ROWS, BOMBS) {
                     randomize();
                 }
             }
-            // isClicked = true;
-            // console.log(bombsArray)
         }
-
-
         let clicks = 0;
 
         async function listener (event) {
@@ -124,38 +133,30 @@ async function minesweeper(COLS, ROWS, BOMBS) {
                 index = parseInt(event.target.getAttribute('number'));
                 event.target.setAttribute('opened', true)
                 await randomize()
-                
                 clicks++
-                if (clicks == 1) await fillCells()
+                if (clicks == 1) await fillCells(cols, rows, bombs)
                 openCells(index, event)
             }
         }
-
         field.addEventListener('click', listener);
     }
 
-    let leftSide = [];
-    let rightSide = [];
-    let topSide = [];
-    let downSide = [];
-    let diagonals = [];
-
-    async function fillCells() {
+    async function fillCells(cols, rows) {
         for (let i = 0; i < bombsArray.length; i++) {
-            let bombsLineLeft = (bombsArray[i] + 1) % (COLS) !== 0;
-            let bombsLineRight = bombsArray[i] !== 0 && bombsArray[i] % COLS !== 0;
-            let bombsLineTop = bombsArray[i] <= (COLS * ROWS) - COLS;
-            let bombsLineDown = bombsArray[i] >= COLS;
+            let bombsLineLeft = (bombsArray[i] + 1) % (cols) !== 0;
+            let bombsLineRight = bombsArray[i] !== 0 && bombsArray[i] % cols !== 0;
+            let bombsLineTop = bombsArray[i] <= (cols * rows) - cols;
+            let bombsLineDown = bombsArray[i] >= cols;
 
-            let diagTopLeft = bombsArray[i] - (COLS) - 1,
-                diagTopRight = bombsArray[i] - (COLS) + 1,
-                diagDownLeft = bombsArray[i] + (COLS) - 1,
-                diagDownRight = bombsArray[i] + (COLS) + 1;
+            let diagTopLeft = bombsArray[i] - (cols) - 1,
+                diagTopRight = bombsArray[i] - (cols) + 1,
+                diagDownLeft = bombsArray[i] + (cols) - 1,
+                diagDownRight = bombsArray[i] + (cols) + 1;
             
             if (bombsLineLeft) obj[bombsArray[i] + 1] += 1;
             if (bombsLineRight) obj[bombsArray[i] - 1] += 1;
-            if (bombsLineTop) obj[bombsArray[i] + COLS] += 1;
-            if (bombsLineDown) obj[bombsArray[i] - COLS] += 1;
+            if (bombsLineTop) obj[bombsArray[i] + cols] += 1;
+            if (bombsLineDown) obj[bombsArray[i] - cols] += 1;
 
 
             if (bombsLineLeft || bombsLineRight || bombsLineTop || bombsLineDown) {
@@ -167,36 +168,34 @@ async function minesweeper(COLS, ROWS, BOMBS) {
                     obj[diagDownRight] += 1;
 
                 }  else
-
                 // DIAGONALS - bombsLineTop
-                if (bombsArray[i] < COLS) { 
-                    if (bombsArray[i] !== COLS - 1)  obj[diagDownRight] += 1;
+                if (bombsArray[i] < cols) { 
+                    if (bombsArray[i] !== cols - 1)  obj[diagDownRight] += 1;
                     if (bombsArray[i] !== 0)  obj[diagDownLeft] += 1;
                 }
 
-                if (bombsArray[i] >= (COLS * ROWS) - COLS) {
-                    if (bombsArray[i] !== (COLS * ROWS) - COLS) obj[diagTopLeft] += 1;
-                    if (bombsArray[i] !== (COLS * ROWS) - 1) obj[diagTopRight] += 1;
+                if (bombsArray[i] >= (cols * rows) - cols) {
+                    if (bombsArray[i] !== (cols * rows) - cols) obj[diagTopLeft] += 1;
+                    if (bombsArray[i] !== (cols * rows) - 1) obj[diagTopRight] += 1;
                 }
                 
                 // DIAGONALS - bombsLineLeft
-                if (bombsArray[i] % COLS == 0 ) {
+                if (bombsArray[i] % cols == 0 ) {
                     if (bombsArray[i]  !== 0) obj[diagTopRight] += 1;
-                    if (bombsArray[i] !== ((COLS * ROWS) - COLS)) obj[diagDownRight] += 1;
+                    if (bombsArray[i] !== ((cols * rows) - cols)) obj[diagDownRight] += 1;
                     
                 }
                 
                 //DIAGONALS - bombsLineRight
-                if ((bombsArray[i] + 1) % COLS == 0) {
-                    if (bombsArray[i] !== COLS - 1) obj[diagTopLeft] += 1;
-                    if (bombsArray[i] !== (COLS * ROWS) - 1) obj[diagDownLeft] += 1;
+                if ((bombsArray[i] + 1) % cols == 0) {
+                    if (bombsArray[i] !== cols - 1) obj[diagTopLeft] += 1;
+                    if (bombsArray[i] !== (cols * rows) - 1) obj[diagDownLeft] += 1;
                 }
             }
         }
-        console.log(obj)
     }
 
-    function openCells(index, event) {
+    function openCells(index) {
         if (obj[index] == 0) {
             cells[index].innerHTML = ' ';
         } else cells[index].innerHTML = obj[index];
@@ -244,15 +243,30 @@ async function minesweeper(COLS, ROWS, BOMBS) {
         container.append(background);
 
         button.addEventListener('click', () => {
-            
+            initGame()
         })
     }
 
-    await createField(COLS, ROWS);
-    await variables();
-    await fillBombs(BOMBS);
+    async function startGame() {
+        startGameBtn.addEventListener('click', () => {
+            if (field.contains(pregame)) {
+                field.removeChild(pregame);
+            }
 
+            let selectionValue = selection.options[selection.selectedIndex].value;
+            
+            if (selectionValue == 'Option 1') minesweeper(...difficulty['easy'])
+            if (selectionValue == 'Option 2') minesweeper(...difficulty['medium'])
+            if (selectionValue == 'Option 3') minesweeper(...difficulty['hard'])
+        })
+    }
     
+    
+    
+    await createField(...difficulty['easy']);
+    await variables()
+    await startGame()
 }
 
-minesweeper(10, 10, 10);
+initGame()
+
