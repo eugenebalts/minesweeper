@@ -4,6 +4,8 @@ import markerImg from './assets/marker.png'
 // import createField from "./modules/filed";
 // import fillBombs from './modules/fillBombs';
 
+document.querySelector('body').append('Привет, друг! Во имя всей человеческой доброты, пожалуйста, дайте мне один денечек, я буду безмерно благодарен, выдалась очень тяжелая неделька и я думаю, мне только денечек и я доделаю эту замечательную игрульку. Свято верю и заранее благодарю ♥')
+
 async function initGame() {
 
     async function checkContainer() {
@@ -38,6 +40,7 @@ async function initGame() {
         pregame = document.querySelector('.field__pregame');
         clicksCounter = document.querySelector('.panel__clicks');
         duration = document.querySelector('.panel__duration')
+        markerIco = document.querySelector('.panel__marker img')
     }
 
     const bombsArray = [];
@@ -46,6 +49,7 @@ async function initGame() {
     let index = 0;
     let clicks = 0;
     let dur = 0;
+    let markCounter = 0;
 
     let leftSide = [];
     let rightSide = [];
@@ -74,13 +78,13 @@ async function initGame() {
         option1.text = 'Easy - field 10x10 with 10 mines';
         option1.value = 'Option 1'
         const option2 = document.createElement('option');
-        option2.text = 'Medium - field 15x15 with 40 mines';
-        option2.value = 'Option 2'
-        const option3 = document.createElement('option');
-        option3.text = 'Hard - Field 25x25 with 99 mines';
-        option3.value = 'Option 3'
+        // option2.text = 'Medium - field 15x15 with 40 mines';
+        // option2.value = 'Option 2'
+        // const option3 = document.createElement('option');
+        // option3.text = 'Hard - Field 25x25 with 99 mines';
+        // option3.value = 'Option 3'
     
-        selection.append(option1, option2, option3)
+        selection.append(option1)
     
         const label = document.createElement('label');
         label.innerHTML = 'Choose difficulty level: '
@@ -148,7 +152,7 @@ async function initGame() {
         helpPanel.append(clicksLabel);
         helpPanel.append(durationLabel);
         helpPanel.append(marker);
-        container.append(helpPanel)
+        container.append(helpPanel);
     
         field.append(pregame)
         container.append(field);
@@ -168,6 +172,12 @@ async function initGame() {
     async function nextStart(cols, rows, bombs) {
         await createMatrix(cols, rows, bombs)
         await fillBombs(cols, rows, bombs);
+    }
+
+    async function markCell() {
+        markerIco.addEventListener('click', () => {
+            console.log('aboba')
+        })
     }
 
     async function fillBombs (cols, rows, bombs) {
@@ -353,6 +363,7 @@ async function initGame() {
             if (gameDuration) {
                 gameDuration()
             }
+            markCell()
         })
     }
     
