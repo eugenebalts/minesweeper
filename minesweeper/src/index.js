@@ -24,12 +24,26 @@ async function initGame() {
     let startGameBtn;
     let selection;
     let pregame;
+    let clicksCounter;
+    let duration;
+
+    async function variables() {
+        cells = document.querySelectorAll('.field__cell');
+        field = document.querySelector('.container__field');
+        container = document.querySelector('.container');
+        selection = document.querySelector('.container__selection')
+        startGameBtn = document.querySelector('.container__button');
+        pregame = document.querySelector('.field__pregame');
+        clicksCounter = document.querySelector('.panel__clicks');
+        duration = document.querySelector('.panel__duration')
+    }
 
     const bombsArray = [];
     const matrix = [];
     let obj = {};
     let index = 0;
     let clicks = 0;
+    let dur = 0;
 
     let leftSide = [];
     let rightSide = [];
@@ -45,15 +59,6 @@ async function initGame() {
                 obj[((i * rows) + j)] = 0;
             }
         }
-    }
-    
-    async function variables() {
-        cells = document.querySelectorAll('.field__cell');
-        field = document.querySelector('.container__field');
-        container = document.querySelector('.container');
-        selection = document.querySelector('.container__selection')
-        startGameBtn = document.querySelector('.container__button');
-        pregame = document.querySelector('.field__pregame')
     }
     
     async function createField(cols, rows) {
@@ -112,7 +117,33 @@ async function initGame() {
         container.append(field);
         container.append(label)
         container.append(startGameBtn)
-    
+
+        const helpPanel = document.createElement('div');
+        helpPanel.classList.add('container__help-panel');
+
+
+        const clicksCounter = document.createElement('input');
+        clicksCounter.classList.add('panel__clicks');
+        clicksCounter.value = clicks;
+        clicksCounter.disabled = true;
+        const clicksLabel = document.createElement('label');
+        clicksLabel.innerHTML = 'Clicks: '
+        clicksLabel.append(clicksCounter)
+
+        const duration = document.createElement('input');
+        duration.classList.add('panel__duration');
+        duration.value = dur;
+        duration.disabled = true;
+        const durationLabel = document.createElement('label');
+        durationLabel.innerHTML = 'Game duration, sec: '
+        durationLabel.append(duration)
+
+        const mark = document.createElement('div');
+
+        
+        helpPanel.append(clicksLabel);
+        helpPanel.append(durationLabel);
+        container.append(helpPanel)
         document.querySelector('body').append(container);
     }
 
@@ -142,6 +173,7 @@ async function initGame() {
                 await randomize()
                 if (event.target.getAttribute('opened') == 'false') {
                     clicks++
+                    clicksCounter.value = clicks;
                     event.target.setAttribute('opened', true)
                     console.log(clicks)
                 }
@@ -249,6 +281,8 @@ async function initGame() {
         button.innerHTML = 'Try again'
         background.append(button)
         container.append(background);
+        gameDuration = NaN;
+        //TODO LOCAL STORAGE DURATION
 
         button.addEventListener('click', () => {
             initGame()
@@ -271,6 +305,9 @@ async function initGame() {
         background.append(button)
         container.append(background);
         openBombs()
+        gameDuration = NaN;
+
+        //TODO LOCAL STORAGE DURATION
 
         button.addEventListener('click', () => {
             initGame()
@@ -281,7 +318,7 @@ async function initGame() {
     async function openBombs() {
         bombsArray.forEach(number => {
             cells[number].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
-            cells[number].style.backgroundColor = '#99ff99'
+            cells[number].style.backgroundColor = '#99ff99';
         })
     }
 
@@ -295,10 +332,20 @@ async function initGame() {
 
             if (selectionValue == 'Option 1') minesweeper(...difficulty['easy'])
             if (selectionValue == 'Option 2') minesweeper(...difficulty['medium'])
-            if (selectionValue == 'Option 3') minesweeper(...difficulty['hard'])
+            if (selectionValue == 'Option 3') minesweeper(...difficulty['hard']);
+            if (gameDuration) {
+                gameDuration()
+            }
         })
     }
     
+    let gameDuration = function() {
+        setTimeout(() => {
+            dur ++
+            duration.value = dur
+            if (gameDuration) gameDuration()
+        }, 1000)
+    }
     
     await checkContainer()
     await createField(...difficulty['easy']);

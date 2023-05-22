@@ -51,6 +51,28 @@
     gap: 1px;
 }
 
+.container__help-panel {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.panel__clicks {
+    display: block;
+    padding: 10px;
+    font-weight: 700;
+    text-align: center;
+    width: 10%;
+}
+
+.panel__duration {
+    padding: 10px;
+    font-weight: 700;
+    text-align: center;
+    width: 50%;
+}
+
 .field__pregame {
     box-sizing: border-box;
     position: absolute;
