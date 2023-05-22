@@ -1,4 +1,6 @@
+
 .container {
+    position: relative;
     padding: 40px;
     margin: 0 auto;
     width: fit-content;
@@ -8,6 +10,38 @@
     align-items: center;
     background-color: rgba(127, 127, 127, .2);
     gap: 20px;
+}
+
+.container__blocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, .4);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.blocker__content {
+    font-size: 20px;
+    color: white;
+}
+
+.blocker__button {
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, .3);
+    font-size: 20px;
+    border-radius: 20px;
+    color: whitesmoke;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.blocker__button:hover {
+    background-color: rgba(0, 0, 0, .6);
 }
 
 .container__field {

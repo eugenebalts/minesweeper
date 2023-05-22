@@ -7,6 +7,15 @@ import bombIcon from './assets/bomb.png'
 
 async function minesweeper(COLS, ROWS, BOMBS) {
 
+    async function deleteBody() {
+        try {
+            document.querySelector('body').removeChild('.container')
+        } catch (e) {
+            return
+        }
+    }
+
+    const body = document.querySelector('body')
     let cells;
     let field;
     let container;
@@ -32,7 +41,7 @@ async function minesweeper(COLS, ROWS, BOMBS) {
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
         field = document.querySelector('.container__field');
-        container = document.querySelector('.interface');
+        container = document.querySelector('.container');
         selection = document.querySelector('.container__selection')
         startGameBtn = document.querySelector('.container__button');
     }
@@ -103,7 +112,7 @@ async function minesweeper(COLS, ROWS, BOMBS) {
                     randomize();
                 }
             }
-            isClicked = true;
+            // isClicked = true;
             // console.log(bombsArray)
         }
 
@@ -193,6 +202,7 @@ async function minesweeper(COLS, ROWS, BOMBS) {
         } else cells[index].innerHTML = obj[index];
         cells[index].style.backgroundColor = 'rgba(100, 100, 100, 0.3)'
 
+
         async function emptyCell(index) {
             cells[index].setAttribute('empty', true);
             cells[index].innerHTML = ' ';
@@ -203,6 +213,7 @@ async function minesweeper(COLS, ROWS, BOMBS) {
             if (bombsArray.includes(index)) {
                 cells[index].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
                 cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
+                gameOver()
         }
         checkInner(index)
     }
@@ -217,6 +228,26 @@ async function minesweeper(COLS, ROWS, BOMBS) {
         if (cells[index].innerHTML == 7) cells[index].style.color = 'DarkRed';
         if (cells[index].innerHTML == 8) cells[index].style.color = 'brown';
     }
+
+    async function gameOver() {
+        const background = document.createElement('div');
+        background.classList.add('container__blocker');
+        const paragraph = document.createElement('p')
+        paragraph.classList.add('blocker__content');
+        paragraph.innerHTML = 'YOU LOSE! GAME OVER!'
+        background.append(paragraph)
+
+        const button = document.createElement('div');
+        button.classList.add('blocker__button');
+        button.innerHTML = 'Try again'
+        background.append(button)
+        container.append(background);
+
+        button.addEventListener('click', () => {
+            
+        })
+    }
+
     await createField(COLS, ROWS);
     await variables();
     await fillBombs(BOMBS);
