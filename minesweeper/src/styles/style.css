@@ -1,3 +1,6 @@
+html {
+    user-select: none;
+}
 
 .container {
     position: relative;
@@ -152,6 +155,8 @@
 .field__cell img {
     width: 80%;
 }
+
+
 
 @media (max-width: 500px) {
     .container__field {

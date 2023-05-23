@@ -9,6 +9,8 @@ import lose from './assets/audio/lose.mp3'
 import markerSound from './assets/audio/marker.mp3'
 import win from './assets/audio/win.mp3'
 
+let isChecked = false;
+
 async function initGame() {
 
     async function checkContainer() {
@@ -42,6 +44,8 @@ async function initGame() {
     let markerIco;
     let empty;
     let topic;
+    let topicLabel;
+    let topicSpan;
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
@@ -56,6 +60,8 @@ async function initGame() {
         empty = document.querySelector('.container__empty');
         selectionLabel = document.querySelector('.container__label-selection');
         topic = document.querySelector('.container__topic');
+        topicLabel = document.querySelector('.container__topic-label')
+        topicSpan = document.querySelector('.container__topic-span')
     }
 
     let bombsArray = [];
@@ -192,14 +198,25 @@ async function initGame() {
         const topic = document.createElement('input');
         topic.classList.add('container__topic');
         topic.type = 'checkbox';
-        topic.position = 'absolute'
+        topic.style.position = 'absolute'
         topic.style.right = '10px';
         topic.style.bottom = '10px';
         topic.style.width = '30px';
         topic.style.height = '30px';
+        topic.style.left = '-1000px'
 
-        
-        container.append(topic)
+        const topicLabel = document.createElement('label');
+        topicLabel.classList.add('container__topic-label');
+        topicLabel.style.fontWeight = 700;
+        topicLabel.style.cursor = 'pointer';
+        const span = document.createElement('span');
+        span.classList.add('container__topic-span')
+        span.style.fontSize = '25px';
+        span.style.fontFamily = 'Impact'
+        topicLabel.append(span);
+        topicLabel.append(topic);
+
+        container.append(topicLabel)
         document.querySelector('body').append(container);
     }
 
@@ -281,6 +298,20 @@ async function initGame() {
         }
         sizes()
         window.addEventListener('resize', sizes);
+    }
+
+    function listenTopic() {
+        topic.addEventListener('change', () => {
+            if (topic.checked) {
+                document.querySelector('body').style.background = '#323030'
+                isChecked = true;
+                checkIsChecked()
+            } else {
+                document.querySelector('body').style.background = 'unset'
+                isChecked = false;
+                checkIsChecked()
+            }
+        })
     }
 
     async function minesweeper(cols, rows, bombs) {
@@ -532,9 +563,23 @@ async function initGame() {
         })
     }
 
+    function checkIsChecked() {
+        if (isChecked) {
+            topic.checked = true
+            document.querySelector('body').style.color = 'white'
+            topicSpan.innerHTML = 'WHITE'
+        } else {
+            topic.checked = false;
+            document.querySelector('body').style.color = 'unset'
+            topicSpan.innerHTML = 'DARK'
+        }
+    }
+
     await checkContainer()
     await createField(...difficulty['easy']);
     await variables()
+    listenTopic()
+    checkIsChecked()
     await startGame()
 }
 
