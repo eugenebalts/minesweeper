@@ -27,12 +27,24 @@ module.exports = {
             {
                 test: /\.(png|jpg|svg|gif)$/,
                 use: [
-                    {
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: 'assets'
+                        {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'assets'
+                        }
                     }
+                ]
+            },
+            {
+                test: /\.(wav|mp3|ogg)$/,
+                use: [
+                        {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'audio/[name].[ext]',
+                            outputPath: 'assets/audio'
+                        }
                     }
                 ]
             }

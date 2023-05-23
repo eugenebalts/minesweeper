@@ -1,6 +1,11 @@
 import './styles/style.css'
 import bombIcon from './assets/bomb.png'
 import markerImg from './assets/marker.png'
+import openCellSound from './assets/audio/openCell.mp3'
+import boom from './assets/audio/boom.mp3'
+import lose from './assets/audio/lose.mp3'
+import markerSound from './assets/audio/marker.mp3'
+import win from './assets/audio/win.mp3'
 // import createField from "./modules/filed";
 // import fillBombs from './modules/fillBombs';
 
@@ -20,6 +25,12 @@ async function initGame() {
         'medium': [15, 15, 40],
         'hard': [25, 25, 99]
     }
+
+    let loseSound = new Audio(lose);
+    let openSound = new Audio(openCellSound);
+    let boomSound = new Audio(boom)
+    let markerSounds = new Audio(markerSound)
+    let winSound = new Audio(win)
     
     let cells;
     let field;
@@ -272,13 +283,9 @@ async function initGame() {
         markCell()
     }
 
-    async function nextStart(cols, rows, bombs) {
-        await createMatrix(cols, rows, bombs)
-        await fillBombs(cols, rows, bombs);
-    }
-
     function markListener() {
         markCounter += 1;
+        markerSounds.play()
         if (markCounter % 2 == 0) {
             isMarker = true;
             markerIco.style.opacity = '.5'
@@ -316,7 +323,7 @@ async function initGame() {
                     index = parseInt(event.target.getAttribute('number'));
                     await randomize()
                     if (event.target.getAttribute('opened') == 'false') {
-                        clicks++
+                        clicks++;
                         clicksCounter.value = clicks;
                         event.target.setAttribute('opened', true)
                         console.log(clicks)
@@ -325,12 +332,13 @@ async function initGame() {
                         await fillCells(cols, rows, bombs)
                         clicks++
                     }
-                    openCells(cols, rows, bombs, index)
+                    openCells(cols, rows, bombs, index);
                 }
             }
 
             if (event.target.classList.contains('field__cell') && isMarker) {
                 if (event.target.getAttribute('opened') == 'false') {
+                    markerSounds.play()
                     event.target.innerHTML = `<img class="cell__marker" src="${markerImg}" alt="marker" style="width: 100%; height: 100%">`
                     isMarker = false;
                     markCounter -= 1;
@@ -344,6 +352,7 @@ async function initGame() {
 
     async function fillCells(cols, rows) {
         for (let i = 0; i < bombsArray.length; i++) {
+            obj[bombsArray[i]] = 'bomb';
             let bombsLineLeft = (bombsArray[i] + 1) % (cols) !== 0;
             let bombsLineRight = bombsArray[i] !== 0 && bombsArray[i] % cols !== 0;
             let bombsLineTop = bombsArray[i] <= (cols * rows) - cols;
@@ -396,15 +405,21 @@ async function initGame() {
         }
     }
 
+    function playAudio() {
+        let audio = newAudio(openCellSound)
+    }
+
     async function openCells(cols, rows, bombs, index) {
         if (obj[index] == 0) {
             cells[index].innerHTML = ' ';
-        } else cells[index].innerHTML = obj[index];
+            openSound.play()
+        } else if (obj[index] !== 'bomb') cells[index].innerHTML = obj[index];
         cells[index].style.backgroundColor = 'rgba(100, 100, 100, 0.3)'
-
+        openSound.play()
         if (bombsArray.includes(index)) {
             cells[index].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
-            cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
+            cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+            boomSound.play()
             gameOver()
         } else {
             let winNumber = (cols * rows) - bombs + 1
@@ -426,6 +441,9 @@ async function initGame() {
     }
 
     async function gameOver() {
+        setTimeout(() => {
+            loseSound.play()
+        }, 500)
         const background = document.createElement('div');
         background.classList.add('container__blocker');
         const paragraph = document.createElement('p')
@@ -449,6 +467,7 @@ async function initGame() {
     }
 
     async function congratulations() {
+        winSound.play()
         const background = document.createElement('div');
         background.classList.add('container__blocker');
         const paragraph = document.createElement('p')
@@ -483,6 +502,7 @@ async function initGame() {
 
     async function startGame() {
         startGameBtn.addEventListener('click', () => {
+            openSound.play()
             if (interval) {
                 clearInterval(interval)
             }
