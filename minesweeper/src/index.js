@@ -26,10 +26,12 @@ async function initGame() {
     let container;
     let startGameBtn;
     let selection;
+    let selectionLabel;
     let pregame;
     let clicksCounter;
     let duration;
     let markerIco;
+    let empty;
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
@@ -40,21 +42,44 @@ async function initGame() {
         pregame = document.querySelector('.field__pregame');
         clicksCounter = document.querySelector('.panel__clicks');
         duration = document.querySelector('.panel__duration')
-        markerIco = document.querySelector('.panel__marker img')
+        markerIco = document.querySelector('.panel__marker img');
+        empty = document.querySelector('.container__empty');
+        selectionLabel = document.querySelector('.container__label-selection')
     }
 
-    const bombsArray = [];
-    const matrix = [];
+    let bombsArray = [];
+    let matrix = [];
     let obj = {};
     let index = 0;
     let clicks = 0;
     let dur = 0;
+    let gameStarted = false;
+    let isMarker = false;
+    let markCounter = 1;
 
     let leftSide = [];
     let rightSide = [];
     let topSide = [];
     let downSide = [];
     let diagonals = [];
+
+    function startProps() {
+        bombsArray = [];
+        matrix = [];
+        obj = {};
+        index = 0;
+        clicks = 0;
+        dur = 0;
+        gameStarted = false;
+
+        leftSide = [];
+        rightSide = [];
+        topSide = [];
+        downSide = [];
+        diagonals = [];
+        isMarker = false;
+        markCounter = 1;
+    }
     
     async function createMatrix(cols, rows) {
         for(let i = 0; i < rows; i++){
@@ -77,45 +102,33 @@ async function initGame() {
         option1.text = 'Easy - field 10x10 with 10 mines';
         option1.value = 'Option 1'
         const option2 = document.createElement('option');
-        // option2.text = 'Medium - field 15x15 with 40 mines';
-        // option2.value = 'Option 2'
-        // const option3 = document.createElement('option');
-        // option3.text = 'Hard - Field 25x25 with 99 mines';
-        // option3.value = 'Option 3'
+        option2.text = 'Medium - field 15x15 with 40 mines';
+        option2.value = 'Option 2'
+        const option3 = document.createElement('option');
+        option3.text = 'Hard - Field 25x25 with 99 mines';
+        option3.value = 'Option 3'
     
         selection.append(option1)
+        selection.append(option2)
+        selection.append(option3)
+
     
         const label = document.createElement('label');
         label.innerHTML = 'Choose difficulty level: '
         label.append(selection)
-        label.style.textAlign = 'center'
+        label.style.textAlign = 'center';
+        label.classList.add('container__label-selection')
     
     
         const startGameBtn = document.createElement('div');
         startGameBtn.classList.add('container__button');
         startGameBtn.innerHTML = 'Start Game';
 
-        const field = document.createElement('div');
-        field.classList.add('container__field');
-        let cellSize;
-        function sizes() {
-            cellSize = '40px';
-            field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
-        }
-
-        sizes()
-        
-        for (let i = 0; i < (cols * rows); i++) {
-            const cell = document.createElement('div');
-            cell.classList.add('field__cell');
-            cell.style.height = cellSize;
-            cell.style.width = cellSize;
-            cell.style.fontWeight = '600'
-            cell.setAttribute('number', i)
-            cell.setAttribute('opened', false)
-            cell.setAttribute('marked', false)
-            field.append(cell);
-        }
+        const empty = document.createElement('div');
+        empty.style.minWidth = '300px';
+        empty.style.minHeight = '300px';
+        empty.style.position = 'relative'
+        empty.classList.add('container__empty')
     
         const pregame = document.createElement('div')
         pregame.classList.add('field__pregame');
@@ -125,7 +138,6 @@ async function initGame() {
 
         const helpPanel = document.createElement('div');
         helpPanel.classList.add('container__help-panel');
-
 
         const clicksCounter = document.createElement('input');
         clicksCounter.classList.add('panel__clicks');
@@ -158,19 +170,106 @@ async function initGame() {
         helpPanel.append(marker);
         container.append(helpPanel);
     
-        field.append(pregame)
-        container.append(field);
+        empty.append(pregame)
+        container.append(empty)
+
         container.append(label)
         container.append(startGameBtn)
 
-        
         document.querySelector('body').append(container);
     }
 
+    async function createCells(cols, rows, bombs) {
+        const field = document.createElement('div');
+        field.classList.add('container__field');
+        let cellSize;
+        function size() {
+            if (window.innerWidth <= 500) {
+                if (cols == 10) {
+                    cellSize = '30px';
+                } else if (cols == 15) {
+                    cellSize = '20px';
+                } else if (cols == 25) {
+                    cellSize = '15px';
+                }
+            } else {
+                if (cols == 10) {
+                    cellSize = '40px';
+                } else if (cols == 15) {
+                    cellSize = '30px';
+                } else if (cols == 25) {
+                    cellSize = '15px';
+                }
+            }
+            field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+        }
+        size()
+        window.addEventListener('resize', size);
+        
+        for (let i = 0; i < (cols * rows); i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('field__cell');
+            cell.style.height = cellSize;
+            cell.style.width = cellSize;
+            cell.style.fontWeight = '600'
+            cell.setAttribute('number', i)
+            cell.setAttribute('opened', false)
+            cell.setAttribute('marked', false)
+            field.append(cell);
+        }
+        container.insertBefore(field, selectionLabel)
+        await variables()
+
+        function sizes() {
+            cells.forEach(cell => {
+                if (window.innerWidth <= 500) {
+                    if (cols == 10) {
+                        cell.style.width = '30px'
+                        cell.style.height = '30px'
+                        cellSize = '30px';
+                    } else if (cols == 15) {
+                        cell.style.width = '20px'
+                        cell.style.height = '20px'
+                        cellSize = '20px';
+                    } else if (cols == 25) {
+                        cell.style.width = '15px'
+                        cell.style.height = '15px'
+                        cellSize = '15px';
+                    }
+                    field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+                } else {
+                    if (cols == 10) {
+                        cell.style.width = '40px'
+                        cell.style.height = '40px'
+                        cellSize = '40px';
+                    } else if (cols == 15) {
+                        cell.style.width = '30px'
+                        cell.style.height = '30px'
+                        cellSize = '30px';
+                    } else if (cols == 25) {
+                        cell.style.width = '20px'
+                        cell.style.height = '20px'
+                        cellSize = '20px';
+                    }
+                    field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+                }
+            })
+        }
+        sizes()
+        window.addEventListener('resize', sizes);
+    }
+
     async function minesweeper(cols, rows, bombs) {
+        if (empty) {
+            container.removeChild(empty)
+        }
+        if (field) {
+            field.remove()
+        }
+        await createCells(cols, rows, bombs);
         await createMatrix(cols, rows, bombs)
         await fillBombs(cols, rows, bombs);
-        
+        markCell()
     }
 
     async function nextStart(cols, rows, bombs) {
@@ -178,21 +277,20 @@ async function initGame() {
         await fillBombs(cols, rows, bombs);
     }
 
-    let isMarker = false;
-    let markCounter = 1;
+    function markListener() {
+        markCounter += 1;
+        if (markCounter % 2 == 0) {
+            isMarker = true;
+            markerIco.style.opacity = '.5'
+        } else {
+            isMarker = false;
+            markerIco.style.opacity = '1'
+        }
+    }
 
     async function markCell() {
-        markerIco.addEventListener('click', () => {
-            markCounter += 1;
-            if (markCounter % 2 == 0) {
-                isMarker = true;
-                markerIco.style.opacity = '.5'
-            } else {
-                isMarker = false;
-                markerIco.style.opacity = '1'
-            }
-
-        })
+        markerIco.style.opacity = 1;
+        markerIco.addEventListener('click', markListener);
     }
 
     async function fillBombs (cols, rows, bombs) {
@@ -309,7 +407,7 @@ async function initGame() {
             cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
             gameOver()
         } else {
-            let winNumber = (cols * rows) - bombs
+            let winNumber = (cols * rows) - bombs + 1
             if (clicks == winNumber) congratulations()
         }
 
@@ -341,7 +439,7 @@ async function initGame() {
         button.innerHTML = 'Try again'
         background.append(button)
         container.append(background);
-        gameDuration = NaN;
+        clearInterval(interval)
         //TODO LOCAL STORAGE DURATION
 
         button.addEventListener('click', () => {
@@ -365,14 +463,13 @@ async function initGame() {
         background.append(button)
         container.append(background);
         openBombs()
-        gameDuration = NaN;
+        clearInterval(interval)
 
         //TODO LOCAL STORAGE DURATION
 
         button.addEventListener('click', () => {
             initGame()
         })
-
     }
 
     async function openBombs() {
@@ -382,30 +479,30 @@ async function initGame() {
         })
     }
 
+    let interval;
+
     async function startGame() {
         startGameBtn.addEventListener('click', () => {
-            if (field.contains(pregame)) {
-                field.removeChild(pregame);
+            if (interval) {
+                clearInterval(interval)
+            }
+            startProps()
+            duration.value = dur;
+            clicksCounter.value = clicks
+            if (empty) {
+                if (empty.contains(pregame)) empty.removeChild(pregame);
             }
 
             let selectionValue = selection.options[selection.selectedIndex].value;
-
             if (selectionValue == 'Option 1') minesweeper(...difficulty['easy'])
             if (selectionValue == 'Option 2') minesweeper(...difficulty['medium'])
             if (selectionValue == 'Option 3') minesweeper(...difficulty['hard']);
-            if (gameDuration) {
-                gameDuration()
-            }
-            markCell()
+            gameStarted = true;
+            interval = setInterval(() => {
+                dur += 1
+                duration.value = dur;
+            }, 1000)
         })
-    }
-    
-    let gameDuration = function() {
-        setTimeout(() => {
-            dur += 1
-            duration.value = dur
-            if (gameDuration) gameDuration()
-        }, 1000)
     }
 
     await checkContainer()

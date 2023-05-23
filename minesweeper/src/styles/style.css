@@ -1,7 +1,7 @@
 
 .container {
     position: relative;
-    padding: 40px;
+    padding: 10px;
     margin: 0 auto;
     width: fit-content;
     border-radius: 20px;
@@ -151,4 +151,10 @@
 
 .field__cell img {
     width: 80%;
+}
+
+@media (max-width: 500px) {
+    .container__field {
+        grid-template-columns: repeat(10, 20px);
+    }
 }
