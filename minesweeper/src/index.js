@@ -1,15 +1,13 @@
 import './styles/style.css'
 import bombIcon from './assets/bomb.png'
 import markerImg from './assets/marker.png'
+import audioOn from './assets/audioOn.png'
+import audioOff from './assets/audioOff.png'
 import openCellSound from './assets/audio/openCell.mp3'
 import boom from './assets/audio/boom.mp3'
 import lose from './assets/audio/lose.mp3'
 import markerSound from './assets/audio/marker.mp3'
 import win from './assets/audio/win.mp3'
-// import createField from "./modules/filed";
-// import fillBombs from './modules/fillBombs';
-
-document.querySelector('body').append('Привет, друг! Во имя всей человеческой доброты, пожалуйста, дайте мне один денечек, я буду безмерно благодарен, выдалась очень тяжелая неделька и я думаю, мне только денечек и я доделаю эту замечательную игрульку. Свято верю и заранее благодарю ♥')
 
 async function initGame() {
 
@@ -43,6 +41,7 @@ async function initGame() {
     let duration;
     let markerIco;
     let empty;
+    let topic;
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
@@ -55,7 +54,8 @@ async function initGame() {
         duration = document.querySelector('.panel__duration')
         markerIco = document.querySelector('.panel__marker img');
         empty = document.querySelector('.container__empty');
-        selectionLabel = document.querySelector('.container__label-selection')
+        selectionLabel = document.querySelector('.container__label-selection');
+        topic = document.querySelector('.container__topic');
     }
 
     let bombsArray = [];
@@ -67,6 +67,7 @@ async function initGame() {
     let gameStarted = false;
     let isMarker = false;
     let markCounter = 1;
+    let isDark = false;
 
     let leftSide = [];
     let rightSide = [];
@@ -91,6 +92,8 @@ async function initGame() {
         isMarker = false;
         markCounter = 1;
     }
+
+
     
     async function createMatrix(cols, rows) {
         for(let i = 0; i < rows; i++){
@@ -175,18 +178,28 @@ async function initGame() {
         marker.append(markerTitle);
         marker.append(markerIco)
 
-        
         helpPanel.append(clicksLabel);
         helpPanel.append(durationLabel);
         helpPanel.append(marker);
         container.append(helpPanel);
-    
+
         empty.append(pregame)
         container.append(empty)
 
         container.append(label)
         container.append(startGameBtn)
 
+        const topic = document.createElement('input');
+        topic.classList.add('container__topic');
+        topic.type = 'checkbox';
+        topic.position = 'absolute'
+        topic.style.right = '10px';
+        topic.style.bottom = '10px';
+        topic.style.width = '30px';
+        topic.style.height = '30px';
+
+        
+        container.append(topic)
         document.querySelector('body').append(container);
     }
 
@@ -326,7 +339,6 @@ async function initGame() {
                         clicks++;
                         clicksCounter.value = clicks;
                         event.target.setAttribute('opened', true)
-                        console.log(clicks)
                     }
                     if (clicks == 1) {
                         await fillCells(cols, rows, bombs)
@@ -403,10 +415,6 @@ async function initGame() {
                 }
             }
         }
-    }
-
-    function playAudio() {
-        let audio = newAudio(openCellSound)
     }
 
     async function openCells(cols, rows, bombs, index) {
@@ -512,7 +520,6 @@ async function initGame() {
             if (empty) {
                 if (empty.contains(pregame)) empty.removeChild(pregame);
             }
-
             let selectionValue = selection.options[selection.selectedIndex].value;
             if (selectionValue == 'Option 1') minesweeper(...difficulty['easy'])
             if (selectionValue == 'Option 2') minesweeper(...difficulty['medium'])
