@@ -94,11 +94,16 @@ async function initGame() {
         const startGameBtn = document.createElement('div');
         startGameBtn.classList.add('container__button');
         startGameBtn.innerHTML = 'Start Game';
-    
-        const cellSize = '40px';
+
         const field = document.createElement('div');
         field.classList.add('container__field');
-        field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+        let cellSize;
+        function sizes() {
+            cellSize = '40px';
+            field.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+        }
+
+        sizes()
         
         for (let i = 0; i < (cols * rows); i++) {
             const cell = document.createElement('div');
@@ -218,7 +223,10 @@ async function initGame() {
                         event.target.setAttribute('opened', true)
                         console.log(clicks)
                     }
-                    if (clicks == 1) await fillCells(cols, rows, bombs)
+                    if (clicks == 1) {
+                        await fillCells(cols, rows, bombs)
+                        clicks++
+                    }
                     openCells(cols, rows, bombs, index)
                 }
             }
