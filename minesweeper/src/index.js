@@ -49,7 +49,6 @@ async function initGame() {
     let index = 0;
     let clicks = 0;
     let dur = 0;
-    let markCounter = 0;
 
     let leftSide = [];
     let rightSide = [];
@@ -109,7 +108,7 @@ async function initGame() {
             cell.style.fontWeight = '600'
             cell.setAttribute('number', i)
             cell.setAttribute('opened', false)
-    
+            cell.setAttribute('marked', false)
             field.append(cell);
         }
     
@@ -174,9 +173,20 @@ async function initGame() {
         await fillBombs(cols, rows, bombs);
     }
 
+    let isMarker = false;
+    let markCounter = 1;
+
     async function markCell() {
         markerIco.addEventListener('click', () => {
-            console.log('aboba')
+            markCounter += 1;
+            if (markCounter % 2 == 0) {
+                isMarker = true;
+                markerIco.style.opacity = '.5'
+            } else {
+                isMarker = false;
+                markerIco.style.opacity = '1'
+            }
+
         })
     }
 
@@ -195,17 +205,32 @@ async function initGame() {
         }
 
         async function listener (event) {
-            if (event.target.classList.contains('field__cell')) {
-                index = parseInt(event.target.getAttribute('number'));
-                await randomize()
-                if (event.target.getAttribute('opened') == 'false') {
-                    clicks++
-                    clicksCounter.value = clicks;
-                    event.target.setAttribute('opened', true)
-                    console.log(clicks)
+            if (!isMarker && !event.target.classList.contains('field__cell') && !event.target.classList.contains('container__field')) {
+                event.target.closest('.field__cell').setAttribute('marked', false)
+                event.target.closest('.field__cell').removeChild(event.target.closest('.field__cell').firstChild);
+            } else {
+                if (event.target.classList.contains('field__cell') && !isMarker) {
+                    index = parseInt(event.target.getAttribute('number'));
+                    await randomize()
+                    if (event.target.getAttribute('opened') == 'false') {
+                        clicks++
+                        clicksCounter.value = clicks;
+                        event.target.setAttribute('opened', true)
+                        console.log(clicks)
+                    }
+                    if (clicks == 1) await fillCells(cols, rows, bombs)
+                    openCells(cols, rows, bombs, index)
                 }
-                if (clicks == 1) await fillCells(cols, rows, bombs)
-                openCells(cols, rows, bombs, index)
+            }
+
+            if (event.target.classList.contains('field__cell') && isMarker) {
+                if (event.target.getAttribute('opened') == 'false') {
+                    event.target.innerHTML = `<img class="cell__marker" src="${markerImg}" alt="marker" style="width: 100%; height: 100%">`
+                    isMarker = false;
+                    markCounter -= 1;
+                    markerIco.style.opacity = '1';
+                    event.target.setAttribute('marked', true)
+                }
             }
         }
         field.addEventListener('click', listener);
