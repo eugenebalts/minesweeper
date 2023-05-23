@@ -153,7 +153,7 @@ async function initGame() {
         const pregame = document.createElement('div')
         pregame.classList.add('field__pregame');
         const paragraph = document.createElement('p')
-        paragraph.innerHTML = 'Please, choose options and start a the game'
+        paragraph.innerHTML = 'Please, choose options and start the game'
         pregame.append(paragraph)
 
         const helpPanel = document.createElement('div');
