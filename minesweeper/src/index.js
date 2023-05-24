@@ -517,7 +517,7 @@ async function initGame() {
             if (isSound) boomSound.play()
             gameOver()
         } else {
-            let winNumber = (cols * rows) - bombs + 1
+            let winNumber = (cols * rows) - bombs
             if (clicks == winNumber) congratulations()
         }
 
