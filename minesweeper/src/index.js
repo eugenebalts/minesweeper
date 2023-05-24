@@ -10,9 +10,9 @@ import markerSound from './assets/audio/marker.mp3'
 import win from './assets/audio/win.mp3'
 
 let isChecked = false;
+let isSound = true;
 
 async function initGame() {
-
     async function checkContainer() {
         if (document.querySelector('.container') == null) {
         } else {
@@ -49,6 +49,7 @@ async function initGame() {
     let markerTitle;
     let markerSubtitle;
     let bombsCount;
+    let soundImg;
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
@@ -68,6 +69,7 @@ async function initGame() {
         markerTitle = document.querySelector('.marker__title')
         markerSubtitle = document.querySelector('.marker__subtitle')
         bombsCount = document.querySelector('.container__bombs-count')
+        soundImg = document.querySelector('.container__sound')
     }
 
     let bombsArray = [];
@@ -242,6 +244,32 @@ async function initGame() {
 
         container.append(topicLabel)
         document.querySelector('body').append(container);
+
+        const soundImg = document.createElement('img');
+        soundImg.classList.add('container__sound');
+        if (isSound) {
+            soundImg.src = audioOn;
+        } else {
+            soundImg.src = audioOff;
+        }
+        soundImg.style.bottom = '10px';
+        soundImg.style.right = '10px';
+        soundImg.style.position = 'absolute';
+        soundImg.style.width = '20px';
+        soundImg.style.cursor = 'pointer';
+        container.append(soundImg)
+    }
+
+    function sound() {
+        soundImg.addEventListener('click', () => {
+            if (isSound) {
+                soundImg.src = audioOff
+                isSound = false
+            } else {
+                soundImg.src = audioOn
+                isSound = true
+            }
+        })
     }
 
     async function createCells(cols, rows, bombs) {
@@ -271,6 +299,8 @@ async function initGame() {
         size()
         window.addEventListener('resize', size);
         
+
+
         for (let i = 0; i < (cols * rows); i++) {
             const cell = document.createElement('div');
             cell.classList.add('field__cell');
@@ -354,7 +384,7 @@ async function initGame() {
 
     function markListener() {
         markCounter += 1;
-        markerSounds.play()
+        if (isSound) markerSounds.play()
         if (markCounter % 2 == 0) {
             isMarker = true;
             markerIco.style.opacity = '.5'
@@ -407,7 +437,7 @@ async function initGame() {
             if (event.target.classList.contains('field__cell') && isMarker) {
                 if (event.target.getAttribute('opened') == 'false') {
                     markerTitle.innerHTML = parseInt(markerTitle.innerHTML) + 1;
-                    markerSounds.play()
+                    if (isSound) markerSounds.play()
                     event.target.innerHTML = `<img class="cell__marker" src="${markerImg}" alt="marker" style="width: 100%; height: 100%">`
                     isMarker = false;
                     markCounter -= 1;
@@ -477,14 +507,14 @@ async function initGame() {
     async function openCells(cols, rows, bombs, index) {
         if (obj[index] == 0) {
             cells[index].innerHTML = ' ';
-            openSound.play()
+            if (isSound) openSound.play()
         } else if (obj[index] !== 'bomb') cells[index].innerHTML = obj[index];
         cells[index].style.backgroundColor = 'rgba(100, 100, 100, 0.3)'
-        openSound.play()
+        if (isSound) openSound.play()
         if (bombsArray.includes(index)) {
             cells[index].innerHTML = `<img src="${bombIcon}" alt="Bomb">`
             cells[index].style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
-            boomSound.play()
+            if (isSound) boomSound.play()
             gameOver()
         } else {
             let winNumber = (cols * rows) - bombs + 1
@@ -507,7 +537,7 @@ async function initGame() {
 
     async function gameOver() {
         setTimeout(() => {
-            loseSound.play()
+            if (isSound) loseSound.play()
         }, 500)
         const background = document.createElement('div');
         background.classList.add('container__blocker');
@@ -532,7 +562,7 @@ async function initGame() {
     }
 
     async function congratulations() {
-        winSound.play()
+        if (isSound) winSound.play()
         const background = document.createElement('div');
         background.classList.add('container__blocker');
         const paragraph = document.createElement('p')
@@ -566,8 +596,9 @@ async function initGame() {
     let interval;
 
     async function startGame() {
+        sound()
         startGameBtn.addEventListener('click', () => {
-            openSound.play()
+            if (isSound) openSound.play()
             if (interval) {
                 clearInterval(interval)
             }
@@ -619,4 +650,7 @@ async function initGame() {
 }
 
 initGame()
+
+
+
 
