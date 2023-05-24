@@ -46,6 +46,9 @@ async function initGame() {
     let topic;
     let topicLabel;
     let topicSpan;
+    let markerTitle;
+    let markerSubtitle;
+    let bombsCount;
 
     async function variables() {
         cells = document.querySelectorAll('.field__cell');
@@ -62,6 +65,9 @@ async function initGame() {
         topic = document.querySelector('.container__topic');
         topicLabel = document.querySelector('.container__topic-label')
         topicSpan = document.querySelector('.container__topic-span')
+        markerTitle = document.querySelector('.marker__title')
+        markerSubtitle = document.querySelector('.marker__subtitle')
+        bombsCount = document.querySelector('.container__bombs-count')
     }
 
     let bombsArray = [];
@@ -137,7 +143,16 @@ async function initGame() {
         label.innerHTML = 'Choose difficulty level: '
         label.append(selection)
         label.style.textAlign = 'center';
-        label.classList.add('container__label-selection')
+        label.classList.add('container__label-selection');
+
+        const bombsCountLabel = document.createElement('label');
+        bombsCountLabel.innerHTML = 'Count of bombs (10 - 99): '
+        const bombsCount = document.createElement('input');
+        bombsCount.classList.add('container__bombs-count');
+        bombsCount.value = 10;
+        bombsCountLabel.append(bombsCount)
+
+
     
     
         const startGameBtn = document.createElement('div');
@@ -178,21 +193,30 @@ async function initGame() {
         const marker = document.createElement('div');
         marker.classList.add('panel__marker');
         const markerTitle = document.createElement('p');
-        markerTitle.innerHTML = 'Mark cells';
+        markerTitle.innerHTML = 0;
+        markerTitle.classList.add('marker__title');
         const markerIco = document.createElement('img');
         markerIco.src = markerImg;
+        const markerSubtitle = document.createElement('p');
+        markerSubtitle.classList.add('marker__subtitle');
+        markerSubtitle.style.margin = 0;
+        markerSubtitle.style.fontWeight = 700;
         marker.append(markerTitle);
-        marker.append(markerIco)
+        marker.append(markerIco);
 
         helpPanel.append(clicksLabel);
         helpPanel.append(durationLabel);
         helpPanel.append(marker);
         container.append(helpPanel);
 
+        container.append(markerSubtitle)
+
         empty.append(pregame)
         container.append(empty)
 
         container.append(label)
+        container.append(bombsCountLabel)
+        
         container.append(startGameBtn)
 
         const topic = document.createElement('input');
@@ -225,7 +249,7 @@ async function initGame() {
         field.classList.add('container__field');
         let cellSize;
         function size() {
-            if (window.innerWidth <= 500) {
+            if (window.innerWidth <= 550) {
                 if (cols == 10) {
                     cellSize = '30px';
                 } else if (cols == 15) {
@@ -263,7 +287,7 @@ async function initGame() {
 
         function sizes() {
             cells.forEach(cell => {
-                if (window.innerWidth <= 500) {
+                if (window.innerWidth <= 550) {
                     if (cols == 10) {
                         cell.style.width = '30px'
                         cell.style.height = '30px'
@@ -324,7 +348,8 @@ async function initGame() {
         await createCells(cols, rows, bombs);
         await createMatrix(cols, rows, bombs)
         await fillBombs(cols, rows, bombs);
-        markCell()
+        markCell();
+        markerSubtitle.innerHTML = `BOMBS: ${bombs}`
     }
 
     function markListener() {
@@ -362,18 +387,18 @@ async function initGame() {
             if (!isMarker && !event.target.classList.contains('field__cell') && !event.target.classList.contains('container__field')) {
                 event.target.closest('.field__cell').setAttribute('marked', false)
                 event.target.closest('.field__cell').removeChild(event.target.closest('.field__cell').firstChild);
+                markerTitle.innerHTML = parseInt(markerTitle.innerHTML) - 1
             } else {
                 if (event.target.classList.contains('field__cell') && !isMarker) {
                     index = parseInt(event.target.getAttribute('number'));
                     await randomize()
                     if (event.target.getAttribute('opened') == 'false') {
                         clicks++;
+                        if (clicks == 1) {
+                            await fillCells(cols, rows, bombs)
+                        }
                         clicksCounter.value = clicks;
                         event.target.setAttribute('opened', true)
-                    }
-                    if (clicks == 1) {
-                        await fillCells(cols, rows, bombs)
-                        clicks++
                     }
                     openCells(cols, rows, bombs, index);
                 }
@@ -381,6 +406,7 @@ async function initGame() {
 
             if (event.target.classList.contains('field__cell') && isMarker) {
                 if (event.target.getAttribute('opened') == 'false') {
+                    markerTitle.innerHTML = parseInt(markerTitle.innerHTML) + 1;
                     markerSounds.play()
                     event.target.innerHTML = `<img class="cell__marker" src="${markerImg}" alt="marker" style="width: 100%; height: 100%">`
                     isMarker = false;
@@ -551,10 +577,19 @@ async function initGame() {
             if (empty) {
                 if (empty.contains(pregame)) empty.removeChild(pregame);
             }
+            let counter = [];
             let selectionValue = selection.options[selection.selectedIndex].value;
-            if (selectionValue == 'Option 1') minesweeper(...difficulty['easy'])
-            if (selectionValue == 'Option 2') minesweeper(...difficulty['medium'])
-            if (selectionValue == 'Option 3') minesweeper(...difficulty['hard']);
+            for (let i = 10; i < 100; i++) {
+                counter.push(i)
+            }
+            if (counter.includes(parseInt(bombsCount.value))) {
+                if (selectionValue == 'Option 1') minesweeper(difficulty['easy'][0], difficulty['easy'][1], bombsCount.value)
+                if (selectionValue == 'Option 2') minesweeper(difficulty['medium'][0], difficulty['medium'][1], bombsCount.value)
+                if (selectionValue == 'Option 3') minesweeper(difficulty['hard'][0], difficulty['hard'][1], bombsCount.value);
+            } else {
+                alert ('Incorrect options. Count of bombs should be by 10 to 99');
+                initGame()
+            }
             gameStarted = true;
             interval = setInterval(() => {
                 dur += 1
