@@ -127,13 +127,13 @@ async function initGame() {
         selection.classList.add('container__selection');
     
         const option1 = document.createElement('option');
-        option1.text = 'Easy - field 10x10 with 10 mines';
+        option1.text = 'Easy - field 10x10';
         option1.value = 'Option 1'
         const option2 = document.createElement('option');
-        option2.text = 'Medium - field 15x15 with 40 mines';
+        option2.text = 'Medium - field 15x15';
         option2.value = 'Option 2'
         const option3 = document.createElement('option');
-        option3.text = 'Hard - Field 25x25 with 99 mines';
+        option3.text = 'Hard - Field 25x25';
         option3.value = 'Option 3'
     
         selection.append(option1)
